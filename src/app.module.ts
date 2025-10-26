@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
@@ -8,20 +8,24 @@ import { AppService } from './app.service';
 import { PrismaModule } from './infrastructure/db/prisma.module';
 import { PrismaService } from './infrastructure/db/prisma.service';
 import { auth } from './lib/auth';
+import { AppEnv } from './types/env';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     PrismaModule,
     AuthModule.forRootAsync({
-      imports: [PrismaModule],
-      useFactory: (prisma: PrismaService) => ({
+      imports: [PrismaModule, ConfigModule],
+      useFactory: (prisma: PrismaService, config: ConfigService<AppEnv>) => ({
         auth: betterAuth({
           ...auth,
+          emailAndPassword: { enabled: true, requireEmailVerification: false },
+          trustedOrigins: [config.getOrThrow('TRUSTED_ORIGINS')],
           database: prismaAdapter(prisma, { provider: 'postgresql' }),
         }),
       }),
-      inject: [PrismaService],
+      disableGlobalAuthGuard: true,
+      inject: [PrismaService, ConfigService],
     }),
   ],
   controllers: [AppController],
