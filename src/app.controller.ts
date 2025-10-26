@@ -9,9 +9,4 @@ export class AppController {
   getHello(): string {
     return this.appService.getHello();
   }
-
-  @Get('users')
-  getUser() {
-    return this.appService.getUser();
-  }
 }
