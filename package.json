@@ -27,7 +27,11 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "prisma db seed",
     "prisma:format": "prisma format",
-    "prepare": "husky"
+    "prepare": "husky",
+    "docker:build": "docker build -t makinpaham-backend .",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
