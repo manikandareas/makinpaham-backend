@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
@@ -8,6 +9,7 @@ import { AppService } from './app.service';
 import { DatabaseModule } from './infrastructure/db/database.module';
 import { DatabaseService } from './infrastructure/db/database.service';
 import { auth } from './lib/auth';
+import { TestsModule } from './modules/tests/tests.module';
 import { AppEnv } from './types/env';
 
 @Module({
@@ -27,6 +29,17 @@ import { AppEnv } from './types/env';
       disableGlobalAuthGuard: true,
       inject: [DatabaseService, ConfigService],
     }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (config: ConfigService<AppEnv>) => ({
+        connection: {
+          host: config.getOrThrow('REDIS_HOST'),
+          port: config.getOrThrow('REDIS_PORT'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    TestsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

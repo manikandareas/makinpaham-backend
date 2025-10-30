@@ -17,8 +17,26 @@ services:
     networks:
       - makinpaham-network
 
+  redis:
+    image: redis:7-alpine
+    container_name: makinpaham-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - makinpaham-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
 volumes:
   postgres_data:
+  redis_data:
 
 networks:
   makinpaham-network:
